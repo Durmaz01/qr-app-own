@@ -16,10 +16,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- VERİTABANI BAĞLANTISI ---
 // (Senin şifre alanını buraya ekledim, direkt çalışır)
-mongoose.connect('mongodb+srv://jhosephjoany064_db_user:sifre123@cluster0.lpk65po.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('✅ MongoDB Atlas Bağlandı!'))
 .catch((err) => console.log('❌ DB Hatası:', err));
-
 // --- ROTALAR ---
 // API isteklerini yönet
 app.use('/', routes);
