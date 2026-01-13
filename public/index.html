@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinamik QR Yönetim Paneli</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f4f4f4; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 30px; text-align: center; display: none; border-top: 1px solid #eee; padding-top: 20px; }
+        #qrImage { border: 10px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .links { margin-top: 15px; font-size: 14px; color: #555; }
+        .links a { color: #007bff; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>QR Kod Oluşturucu</h1>
+        <div class="form-group">
+            <label>Hedef Link</label>
+            <input type="url" id="originalUrl" placeholder="Qr code oluşturmak istediğiniz linki giriniz..." required>
+        </div>
+        <div class="form-group">
+            <label>Başlık</label>
+            <input type="text" id="title" placeholder="Örn:Firma ismi">
+        </div>
+        <button onclick="createQR()">QR Kod Oluştur</button>
+        <div id="result">
+            <h3>QR Kodunuz Hazır!</h3>
+            <img id="qrImage" src="" alt="QR Code" width="200">
+            <div class="links">
+                <p>Kısa Link: <a id="shortLink" href="#" target="_blank">...</a></p>
+                <p>Hedef: <span id="targetLink">...</span></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function createQR() {
+            const originalUrl = document.getElementById('originalUrl').value;
+            const title = document.getElementById('title').value;
+            if(!originalUrl) return alert("Lütfen bir link girin!");
+            try {
+                const response = await fetch('/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ originalUrl, title })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('qrImage').src = data.qrImage;
+                    document.getElementById('shortLink').href = data.redirectUrl;
+                    document.getElementById('shortLink').innerText = data.redirectUrl;
+                    document.getElementById('targetLink').innerText = originalUrl;
+                } else {
+                    alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
+                }
+            } catch (err) {
+                alert('Sunucuyla iletişim kurulamadı!');
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

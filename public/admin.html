@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetici Paneli - Dilek Pastaneleri</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; background: #f8f9fa; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { margin: 0; color: #333; }
+        .btn-new { background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #343a40; color: white; font-weight: 600; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        .qr-thumb { width: 50px; height: 50px; border: 1px solid #ddd; padding: 2px; }
+        .badge { background: #007bff; color: white; padding: 5px 10px; border-radius: 20px; font-size: 14px; font-weight: bold; }
+        .link-text { color: #666; font-size: 12px; display: block; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📊 QR Kod Performans Paneli</h1>
+        <a href="/" class="btn-new">+ Yeni QR Oluştur</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>QR</th>
+                <th>Başlık & Link</th>
+                <th>Kısa Kod</th>
+                <th>Okunma Sayısı</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td><img src="${item.qrImage}" class="qr-thumb"></td>
+                            <td>
+                                <strong>${item.title || 'Başlıksız'}</strong>
+                                <span class="link-text">${item.originalUrl}</span>
+                            </td>
+                            <td>
+                                <a href="/${item.shortCode}" target="_blank">
+                                    ${item.shortCode}
+                                </a>
+                            </td>
+                            <td><span class="badge">${item.clicks} Kez Okundu</span></td>
+                            <td>
+                                <a href="${item.qrImage}" download="qr-${item.shortCode}.png" style="color:#007bff">İndir</a>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+            } catch (err) {
+                console.error("Veri çekme hatası:", err);
+            }
+        }
+
+        // Sayfa açılınca verileri yükle
+        loadStats();
+    </script>
+
+</body>
+</html>
