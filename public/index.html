@@ -3,67 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dinamik QR Yönetim Paneli</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f4f4f4; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { color: #333; text-align: center; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #0056b3; }
-        #result { margin-top: 30px; text-align: center; display: none; border-top: 1px solid #eee; padding-top: 20px; }
-        #qrImage { border: 10px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .links { margin-top: 15px; font-size: 14px; color: #555; }
-        .links a { color: #007bff; text-decoration: none; font-weight: bold; }
-    </style>
+    <title>QR Kod Oluşturucu</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="card">
-        <h1>QR Kod Oluşturucu</h1>
-        <div class="form-group">
-            <label>Hedef Link</label>
-            <input type="url" id="originalUrl" placeholder="Qr code oluşturmak istediğiniz linki giriniz..." required>
-        </div>
-        <div class="form-group">
-            <label>Başlık</label>
-            <input type="text" id="title" placeholder="Örn:Firma ismi">
-        </div>
-        <button onclick="createQR()">QR Kod Oluştur</button>
-        <div id="result">
-            <h3>QR Kodunuz Hazır!</h3>
-            <img id="qrImage" src="" alt="QR Code" width="200">
-            <div class="links">
-                <p>Kısa Link: <a id="shortLink" href="#" target="_blank">...</a></p>
-                <p>Hedef: <span id="targetLink">...</span></p>
+
+    <div class="main-wrapper">
+        <div class="generator-card">
+            <h1><i class="fa-solid fa-qrcode"></i> QR Oluştur</h1>
+            <p>İstediğiniz linki yapıştırın, anında takip edilebilir QR kodunuzu alın.</p>
+
+            <input type="url" id="originalUrl" placeholder="https://ornek.com" required>
+            
+            <button onclick="generateQR()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Oluştur
+            </button>
+
+            <div id="qr-result">
+                <img id="qr-image" src="" alt="QR Kod">
+                <br>
+                <a id="download-btn" href="#" download="qrcode.png">
+                    <button style="background-color: var(--success); margin-top: 10px;">
+                        <i class="fa-solid fa-download"></i> İndir
+                    </button>
+                </a>
             </div>
         </div>
     </div>
+
+    <footer>
+        &copy; 2026 QR Yönetim Sistemi - Tüm Hakları Saklıdır
+    </footer>
+
     <script>
-        async function createQR() {
-            const originalUrl = document.getElementById('originalUrl').value;
-            const title = document.getElementById('title').value;
-            if(!originalUrl) return alert("Lütfen bir link girin!");
+        async function generateQR() {
+            const urlInput = document.getElementById('originalUrl').value;
+            const resultDiv = document.getElementById('qr-result');
+            const qrImage = document.getElementById('qr-image');
+            const downloadBtn = document.getElementById('download-btn');
+
+            if (!urlInput) {
+                alert("Lütfen bir link girin!");
+                return;
+            }
+
             try {
-                const response = await fetch('/create', {
+                // API'ye istek at
+                const response = await fetch('/api/shorten', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ originalUrl, title })
+                    body: JSON.stringify({ originalUrl: urlInput })
                 });
-                const data = await response.json();
-                if(data.success) {
-                    document.getElementById('result').style.display = 'block';
-                    document.getElementById('qrImage').src = data.qrImage;
-                    document.getElementById('shortLink').href = data.redirectUrl;
-                    document.getElementById('shortLink').innerText = data.redirectUrl;
-                    document.getElementById('targetLink').innerText = originalUrl;
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // QR Kod resmini ayarla
+                    qrImage.src = data.qrCode;
+                    
+                    // İndirme linkini ayarla
+                    downloadBtn.href = data.qrCode;
+                    
+                    // Sonucu göster
+                    resultDiv.style.display = 'block';
                 } else {
-                    alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
+                    alert("Bir hata oluştu.");
                 }
             } catch (err) {
-                alert('Sunucuyla iletişim kurulamadı!');
                 console.error(err);
+                alert("Sunucuya bağlanılamadı.");
             }
         }
     </script>
