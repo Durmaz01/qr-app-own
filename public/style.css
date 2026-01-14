@@ -245,3 +245,57 @@ detail-btn {
     font-family: monospace; 
     color: #8ab4f8;
 }
+
+/* Admin Anasayfa Butonu Stilleri */
+.admin-btn {
+    position: absolute; /* Sayfada serbest dolaşmasını sağlar */
+    top: 20px;          /* Yukarıdan 20px boşluk */
+    right: 20px;        /* Sağdan 20px boşluk */
+    
+    text-decoration: none; /* Altındaki çizgiyi kaldırır */
+    color: #333;           /* Yazı rengi (koyu gri) */
+    font-weight: bold;
+    font-family: sans-serif;
+    
+    background-color: #f0f0f0; /* Arka plan rengi */
+    padding: 10px 15px;        /* Butonun iç boşluğu */
+    border-radius: 8px;        /* Köşeleri yuvarlatma */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Hafif gölge */
+    transition: all 0.3s ease; /* Hover efekti için geçiş */
+    z-index: 1000; /* Diğer her şeyin üstünde dursun */
+}
+
+/* Mouse ile üzerine gelince */
+.admin-btn:hover {
+    background-color: #333;
+    color: #fff;
+    transform: translateY(-2px); /* Hafifçe yukarı kalksın */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Admin Butonu Stilleri */
+.main-btn {
+    position: absolute; /* Sayfada serbest dolaşmasını sağlar */
+    top: 10px;          /* Yukarıdan 20px boşluk */
+    right: 20px;        /* Sağdan 20px boşluk */
+    
+    text-decoration: none; /* Altındaki çizgiyi kaldırır */
+    color: #333;           /* Yazı rengi (koyu gri) */
+    font-weight: bold;
+    font-family: sans-serif;
+    
+    background-color: #f0f0f0; /* Arka plan rengi */
+    padding: 10px 15px;        /* Butonun iç boşluğu */
+    border-radius: 8px;        /* Köşeleri yuvarlatma */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Hafif gölge */
+    transition: all 0.3s ease; /* Hover efekti için geçiş */
+    z-index: 1000; /* Diğer her şeyin üstünde dursun */
+}
+
+/* Mouse ile üzerine gelince */
+.main-btn:hover {
+    background-color: #333;
+    color: #fff;
+    transform: translateY(-2px); /* Hafifçe yukarı kalksın */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}

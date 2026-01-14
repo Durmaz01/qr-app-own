@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function checkPassword() {
     const input = document.getElementById('admin-pass');
-    if (input.value === 'admin123') { 
+    if (input.value === 'admin5970') { 
         document.getElementById('login-screen').style.display = 'none'; 
         document.getElementById('dashboard-content').style.display = 'block';    
         loadDashboard(); 

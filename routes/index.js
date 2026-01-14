@@ -13,15 +13,13 @@ router.post('/create', async (req, res) => {
 
     if (!originalUrl) return res.status(400).json({ error: 'Link girmelisiniz' });
 
-    // 1. Veritabanına yeni bir kayıt aç (ShortCode otomatik oluşur)
+    // 1. Veritabanına yeni bir kayıt aç
     const newLink = new Link({
       originalUrl,
       title
     });
 
     // 2. QR Kodun nereye gideceğini belirle
-    // Render.com'da Environment Variable olarak BASE_URL girmezsen localhost çalışır.
-    // Girersen oradaki adres çalışır.
     const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
     const redirectUrl = `${baseUrl}/${newLink.shortCode}`;
 
@@ -45,16 +43,12 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// --- 2. İSTATİSTİK PANELİ API'si (DİKKAT: YERİ DEĞİŞTİ) ---
-// BU KISIM '/:code' SATIRINDAN ÖNCE OLMALI! 
-// Yoksa sistem 'stats' kelimesini bir QR kod zanneder.
+// --- 2. İSTATİSTİK PANELİ API'si ---
 router.get('/stats', async (req, res) => {
   try {
-    // Tüm linkleri tarihe göre (en yeni en üstte) getir
     const links = await Link.find().sort({ createdAt: -1 });
     const reports = [];
 
-    // Her link için kaç kere tıklandığını hesapla
     for (const link of links) {
       const clickCount = await Analytics.countDocuments({ linkId: link._id });
       
@@ -76,7 +70,7 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// --- 3. YÖNLENDİRME ve TAKİP SİSTEMİ ---
+// --- 3. YÖNLENDİRME ve TAKİP SİSTEMİ (GÜNCELLENEN KISIM) ---
 router.get('/:code', async (req, res) => {
   try {
     const { code } = req.params;
@@ -90,12 +84,26 @@ router.get('/:code', async (req, res) => {
 
     // 2. İSTATİSTİK TOPLAMA
     const agent = useragent.parse(req.headers['user-agent']);
-    const clientIp = requestIp.getClientIp(req);
+    
+    // IP Alma (let yaptık çünkü aşağıda değiştireceğiz)
+    let clientIp = requestIp.getClientIp(req);
 
+    // [DÜZELTME 1] IP Temizliği: Eğer ::ffff:192... gibi gelirse başını sil
+    if (clientIp && clientIp.includes('::ffff:')) {
+        clientIp = clientIp.split(':').pop();
+    }
+
+    // [DÜZELTME 2] Cihaz Adı: Bilgisayarları 'Other' yerine 'PC / Mac' göster
+    let deviceName = agent.device.toString();
+    if (deviceName === 'Other 0.0.0' || deviceName === 'Other') {
+        deviceName = "PC / Mac"; 
+    }
+
+    // [DÜZELTME 3] Veritabanına temiz verileri kaydet
     await Analytics.create({
       linkId: link._id,
-      ipAddress: clientIp,
-      userDevice: agent.device.toString(), 
+      ipAddress: clientIp,       // Temizlenmiş IP
+      userDevice: deviceName,    // Düzeltilmiş cihaz adı
       os: agent.os.toString(),             
       browser: agent.toAgent()             
     });

@@ -15,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
+app.enable('trust proxy');
 
 // --- VERİTABANI BAĞLANTISI ---
 mongoose.connect(process.env.MONGO_URI)
